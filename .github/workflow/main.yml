@@ -1,0 +1,76 @@
+nname: Django CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.12.0
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade 
+          pip install flake8
+          pip install -r requirements.txt
+
+      - name: Database Migrations
+        run: |
+          python manage.py migrate
+
+      - name: Collect Static Files
+        run: |
+          python manage.py collectstatic --noinput
+
+      - name: Run Tests
+        run: |
+          python manage.py test
+
+      - name: Check Code Style
+        run: |
+          # Add your code style checking command here
+          # For example, using flake8
+          pip install -r requirements.dev.txt
+          flake8 .
+          
+
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.12.0
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Database Migrations
+        run: |
+          python manage.py migrate
+
+      - name: Collect Static Files
+        run: |
+          python manage.py collectstatic --noinput
+
+      - name: Deploy Application
+        run: |
+          # Add your deployment command here
+          # For example, using a simple run command
+          python manage.py runserver
